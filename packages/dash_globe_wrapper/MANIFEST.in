@@ -1,0 +1,11 @@
+include dash_globe_wrapper/dash_globe_wrapper.min.js
+include dash_globe_wrapper/dash_globe_wrapper.min.js.map
+include dash_globe_wrapper/async-*.js
+include dash_globe_wrapper/async-*.js.map
+include dash_globe_wrapper/*-shared.js
+include dash_globe_wrapper/*-shared.js.map
+include dash_globe_wrapper/metadata.json
+include dash_globe_wrapper/package-info.json
+include README.md
+include LICENSE
+include package.json

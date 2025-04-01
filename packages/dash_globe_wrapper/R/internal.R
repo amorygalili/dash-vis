@@ -1,0 +1,27 @@
+.dashGlobeWrapper_js_metadata <- function() {
+deps_metadata <- list(`dash_globe_wrapper` = structure(list(name = "dash_globe_wrapper",
+version = "0.0.1", src = list(href = NULL,
+file = "deps"), meta = NULL,
+script = 'async-DashGlobeWrapper.js',
+stylesheet = NULL, head = NULL, attachment = NULL, package = "dashGlobeWrapper",
+all_files = FALSE, async = TRUE), class = "html_dependency"),
+`dash_globe_wrapper` = structure(list(name = "dash_globe_wrapper",
+version = "0.0.1", src = list(href = NULL,
+file = "deps"), meta = NULL,
+script = 'async-DashGlobeWrapper.js.map',
+stylesheet = NULL, head = NULL, attachment = NULL, package = "dashGlobeWrapper",
+all_files = FALSE, dynamic = TRUE), class = "html_dependency"),
+`dash_globe_wrapper` = structure(list(name = "dash_globe_wrapper",
+version = "0.0.1", src = list(href = NULL,
+file = "deps"), meta = NULL,
+script = 'dash_globe_wrapper.min.js',
+stylesheet = NULL, head = NULL, attachment = NULL, package = "dashGlobeWrapper",
+all_files = FALSE), class = "html_dependency"),
+`dash_globe_wrapper` = structure(list(name = "dash_globe_wrapper",
+version = "0.0.1", src = list(href = NULL,
+file = "deps"), meta = NULL,
+script = 'dash_globe_wrapper.min.js.map',
+stylesheet = NULL, head = NULL, attachment = NULL, package = "dashGlobeWrapper",
+all_files = FALSE, dynamic = TRUE), class = "html_dependency"))
+return(deps_metadata)
+}
