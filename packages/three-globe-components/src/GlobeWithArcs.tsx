@@ -1,5 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Globe from 'react-globe.gl';
+
+interface Props {
+  width: number;
+  height: number;
+}
 
 interface ArcData {
   startLat: number;
@@ -9,7 +14,7 @@ interface ArcData {
   color: string[];
 }
 
-const GlobeWithArcs: React.FC = () => {
+const GlobeWithArcs = ({ width, height }: Props) => {
   const globeRef = useRef<any>(undefined);
   const [arcsData, setArcsData] = useState<ArcData[]>([]);
 
@@ -31,6 +36,8 @@ const GlobeWithArcs: React.FC = () => {
 
   return (
     <Globe
+      width={width}
+      height={height}
       ref={globeRef}
       globeImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg"
       arcsData={arcsData}

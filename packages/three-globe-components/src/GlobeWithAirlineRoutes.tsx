@@ -5,6 +5,11 @@ import { csvParseRows } from 'd3-dsv';
 const COUNTRY = 'United States';
 const OPACITY = 0.22;
 
+interface Props {
+  width: number;
+  height: number;
+}
+
 interface Airport {
   airportId: string;
   name: string;
@@ -36,7 +41,7 @@ interface Route {
   dstAirport: Airport;
 }
 
-const GlobeWithAirlineRoutes: React.FC = () => {
+const GlobeWithAirlineRoutes = ({ width, height }: Props) => {
   const globeRef = useRef<any>(undefined);
   const [airports, setAirports] = useState<Airport[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -132,6 +137,8 @@ const GlobeWithAirlineRoutes: React.FC = () => {
 
   return (
     <Globe
+      width={width}
+      height={height}
       ref={globeRef}
       globeImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg"
       arcsData={routes}

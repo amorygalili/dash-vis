@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import Globe from 'react-globe.gl';
 import * as satellite from 'satellite.js';
 
+interface Props {
+  width: number;
+  height: number;
+}
+
 const EARTH_RADIUS_KM = 6371; // km
 const TIME_STEP = 3 * 1000; // per frame
 
@@ -15,7 +20,7 @@ interface SatelliteData {
 
 satellite
 
-const GlobeWithSatellites: React.FC = () => {
+const GlobeWithSatellites = ({ width, height }: Props) => {
   const globeRef = useRef<any>(undefined);
   const [satData, setSatData] = useState<SatelliteData[]>([]);
   const [time, setTime] = useState<Date>(new Date());
@@ -80,6 +85,8 @@ const GlobeWithSatellites: React.FC = () => {
   return (
     <div>
       <Globe
+        width={width}
+        height={height}
         ref={globeRef}
         globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
         particlesData={particlesData as object[]}

@@ -3,19 +3,22 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import R3fGlobe from 'r3f-globe';
 
+interface Props {
+  width: number;
+  height: number;
+}
+
 const GlobeComponent: React.FC = () => {
   const globeRef = useRef<any>(undefined);
   const controlsRef = useRef<any>(undefined);
   const { camera } = useThree();
 
-  // Set initial camera position
   useEffect(() => {
     if (globeRef.current) {
       globeRef.current.setPointOfView(camera);
     }
   }, [camera]);
 
-  // Handle camera movement
   const handleCameraChange = useCallback(() => {
     if (globeRef.current) {
       globeRef.current.setPointOfView(camera);
@@ -47,9 +50,9 @@ const GlobeComponent: React.FC = () => {
   );
 };
 
-const TiledGlobe: React.FC = () => {
+const TiledGlobe: React.FC<Props> = ({ width, height }) => {
   return (
-    <div style={{ height: '100vh', width: '100vw' }}>
+    <div style={{ width: `${width}px`, height: `${height}px` }}>
       <Canvas
         flat
         camera={{ fov: 50, position: [0, 0, 400], near: 0.01, far: 10000 }}
