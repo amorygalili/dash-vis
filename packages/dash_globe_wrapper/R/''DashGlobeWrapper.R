@@ -1,9 +1,9 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 #' @export
-''DashGlobeWrapper <- function(id=NULL, label=NULL, value=NULL) {
+''DashGlobeWrapper <- function(id=NULL, height=NULL, width=NULL) {
     
-    props <- list(id=id, label=label, value=value)
+    props <- list(id=id, height=height, width=width)
     if (length(props) > 0) {
         props <- props[!vapply(props, is.null, logical(1))]
     }
@@ -11,7 +11,7 @@
         props = props,
         type = 'DashGlobeWrapper',
         namespace = 'dash_globe_wrapper',
-        propNames = c('id', 'label', 'value'),
+        propNames = c('id', 'height', 'width'),
         package = 'dashGlobeWrapper'
         )
 

@@ -5,6 +5,10 @@ using Dash
 const resources_path = realpath(joinpath( @__DIR__, "..", "deps"))
 const version = "0.0.1"
 
+include("jl/''_dashbasicglobe.jl")
+include("jl/''_dashglobewithairlineroutes.jl")
+include("jl/''_dashglobewitharcs.jl")
+include("jl/''_dashglobewithsatellites.jl")
 include("jl/''_dashglobewrapper.jl")
 
 function __init__()

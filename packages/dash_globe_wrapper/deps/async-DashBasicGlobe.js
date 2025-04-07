@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkdash_globe_wrapper=self.webpackChunkdash_globe_wrapper||[]).push([[963],{673:(e,t,r)=>{r.r(t),r.d(t,{default:()=>p});var h=r(609),i=r.n(h),n=r(120),d=r.n(n),s=r(680);function a(e){var t=e.id,r=e.width,h=e.height;return i().createElement("div",{id:t},i().createElement(s.Yr,{width:r,height:h}))}a.defaultProps={width:500,height:500},a.propTypes={id:d().string,width:d().number,height:d().number,setProps:d().func};const p=a}}]);
+//# sourceMappingURL=async-DashBasicGlobe.js.map

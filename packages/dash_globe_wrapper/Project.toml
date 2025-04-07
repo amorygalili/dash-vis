@@ -1,7 +1,7 @@
 
 name = "DashGlobeWrapper"
 uuid = "1b08a953-4be3-4667-9a23-fc38c76586ec"
-authors = ["Amory Galili"]
+authors = ["Amory Galili <amorygalili@gmail.com>"]
 version = "0.0.1"
 
 [deps]

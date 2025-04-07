@@ -1,3 +1,7 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+export(''DashBasicGlobe)
+export(''DashGlobeWithAirlineRoutes)
+export(''DashGlobeWithArcs)
+export(''DashGlobeWithSatellites)
 export(''DashGlobeWrapper)

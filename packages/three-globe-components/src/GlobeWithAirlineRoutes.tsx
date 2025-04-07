@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Globe from 'react-globe.gl';
 import { csvParseRows } from 'd3-dsv';
 

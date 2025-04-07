@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Globe from 'react-globe.gl';
 import * as satellite from 'satellite.js';
 

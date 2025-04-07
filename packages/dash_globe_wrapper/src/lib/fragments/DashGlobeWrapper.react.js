@@ -1,43 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import {TiledGlobe } from 'three-globe-components';
+import { TiledGlobe } from 'three-globe-components';
 
-/**
- * ExampleComponent is an example component.
- * It takes a property, `label`, and
- * displays it.
- * It renders an input with the property `value`
- * which is editable by the user.
- */
-const DashGlobeWrapper = (props) => {
-    const {id, label, setProps, value} = props;
-
-    const handleInputChange = (e) => {
-        /*
-        * Send the new value to the parent component.
-        * setProps is a prop that is automatically supplied
-        * by dash's front-end ("dash-renderer").
-        * In a Dash app, this will update the component's
-        * props and send the data back to the Python Dash
-        * app server if a callback uses the modified prop as
-        * Input or State.
-        */
-        setProps({ value: e.target.value });
-    };
-
+function DashGlobeWrapper({ id, width, height }) {
     return (
-        // <div id={id}>
-        //     ExampleComponent: {label}&nbsp;
-        //     <input
-        //         value={value}
-        //         onChange={handleInputChange}
-        //     />
-        // </div>
-        <TiledGlobe />
+        <div id={id}>
+            <TiledGlobe width={width} height={height} />
+        </div>
     );
 }
 
-DashGlobeWrapper.defaultProps = {};
+DashGlobeWrapper.defaultProps = {
+    width: 500,
+    height: 500
+};
 
 DashGlobeWrapper.propTypes = {
     /**
@@ -46,14 +22,14 @@ DashGlobeWrapper.propTypes = {
     id: PropTypes.string,
 
     /**
-     * A label that will be printed when this component is rendered.
+     * Width of the globe in pixels
      */
-    label: PropTypes.string.isRequired,
+    width: PropTypes.number,
 
     /**
-     * The value displayed in the input.
+     * Height of the globe in pixels
      */
-    value: PropTypes.string,
+    height: PropTypes.number,
 
     /**
      * Dash-assigned callback that should be called to report property changes
