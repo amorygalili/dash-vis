@@ -112,7 +112,16 @@ export default DashYourComponent;
 ```
 
 4. Add the component to the exports in `packages/dash_globe_wrapper/src/lib/index.js`
-5. Rebuild the package using `pnpm build`
+5. Add the component name to the `async_resources` array in `packages/dash_globe_wrapper/dash_globe_wrapper/__init__.py`:
+```python
+async_resources = [
+    "DashGlobeWrapper",
+    "DashBasicGlobe",
+    # ... other components
+    "YourNewComponent"  # Add your new component here
+]
+```
+6. Rebuild the package using `pnpm build`
 
 ## Usage in Dash Applications
 

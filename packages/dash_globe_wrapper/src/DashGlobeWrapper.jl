@@ -26,8 +26,64 @@ function __init__()
     type = :js
 ),
 DashBase.Resource(
+    relative_package_path = "async-DashBasicGlobe.js",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashBasicGlobe.js",
+    dynamic = nothing,
+    async = :true,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithArcs.js",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithArcs.js",
+    dynamic = nothing,
+    async = :true,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithAirlineRoutes.js",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithAirlineRoutes.js",
+    dynamic = nothing,
+    async = :true,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithSatellites.js",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithSatellites.js",
+    dynamic = nothing,
+    async = :true,
+    type = :js
+),
+DashBase.Resource(
     relative_package_path = "async-DashGlobeWrapper.js.map",
     external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWrapper.js.map",
+    dynamic = true,
+    async = nothing,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashBasicGlobe.js.map",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashBasicGlobe.js.map",
+    dynamic = true,
+    async = nothing,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithArcs.js.map",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithArcs.js.map",
+    dynamic = true,
+    async = nothing,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithAirlineRoutes.js.map",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithAirlineRoutes.js.map",
+    dynamic = true,
+    async = nothing,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithSatellites.js.map",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithSatellites.js.map",
     dynamic = true,
     async = nothing,
     type = :js
