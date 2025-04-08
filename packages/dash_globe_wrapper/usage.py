@@ -48,12 +48,12 @@ def update_globe(selected_value):
             width=800,
             height=600
         )
-    # elif selected_value == 'satellites':
-    #     return dash_globe_wrapper.DashGlobeWithSatellites(
-    #         id='satellites-globe',
-    #         width=800,
-    #         height=600
-    #     )
+    elif selected_value == 'satellites':
+        return dash_globe_wrapper.DashGlobeWithSatellites(
+            id='satellites-globe',
+            width=800,
+            height=600
+        )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8051)

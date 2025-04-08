@@ -52,7 +52,7 @@ const GlobeWithSatellites = ({ width, height }: Props) => {
           // Exclude those that can't be propagated
           .filter((d) => !!satellite.propagate(d.satrec, new Date()).position);
 
-        setSatData(satData);
+        setSatData(satData.slice(0, 200));
       });
   }, []);
 
@@ -89,12 +89,14 @@ const GlobeWithSatellites = ({ width, height }: Props) => {
         height={height}
         ref={globeRef}
         globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+        particlesList={particlesData as object[]}
         particlesData={particlesData as object[]}
         particleLabel={((d: SatelliteData) => d.name) as any}
         particleLat={((d: SatelliteData) => d.lat!) as any}
         particleLng={((d: SatelliteData) => d.lng!) as any}
         particleAltitude={((d: SatelliteData) => d.alt!) as any}
         particlesColor={useCallback(() => 'palegreen', [])}
+        particlesSize={5}
       />
       <div
         style={{
