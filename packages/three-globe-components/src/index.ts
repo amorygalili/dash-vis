@@ -4,3 +4,5 @@ export { default as GlobeWithSatellites } from "./GlobeWithSatellites";
 export { default as MyGlobe } from "./MyGlobe";
 export { default as TiledGlobe } from "./TiledGlobe";
 export { GlbModelLoader } from "./GlbModelLoader";
+export { default as GlobeWithOrbitingShuttle } from "./GlobeWithOrbitingShuttle";
+export { default as GlobeWithOrbitingGlbShuttle } from "./GlobeWithOrbitingGlbShuttle";
