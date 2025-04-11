@@ -6,13 +6,12 @@ import MyGlobe from './MyGlobe';
 import TiledGlobe from './TiledGlobe';
 import { GlbModelLoader } from './GlbModelLoader';
 import GlobeWithOrbitingShuttle from './GlobeWithOrbitingShuttle';
-import GlobeWithOrbitingGlbShuttle from './GlobeWithOrbitingGlbShuttle';
 import GlobeWithOrbitingR3FShuttle from './GlobeWithOrbitingR3FShuttle';
 import { useResizeDetector } from 'react-resize-detector';
 import { useGLTF } from "@react-three/drei";
 
 
-type GlobeType = 'tiled' | 'arcs' | 'basic' | 'airlines' | 'satellites' | 'glbmodel' | 'orbitingshuttle' | 'orbitingglbshuttle' | 'orbitingr3fshuttle';
+type GlobeType = 'tiled' | 'arcs' | 'basic' | 'airlines' | 'satellites' | 'glbmodel' | 'orbitingshuttle' | 'orbitingr3fshuttle';
 
 function App() {
   const { width, height, ref } = useResizeDetector();
@@ -36,8 +35,6 @@ function App() {
         </div>;
       case 'orbitingshuttle':
         return <GlobeWithOrbitingShuttle width={width || 0} height={height || 0} />;
-      case 'orbitingglbshuttle':
-        return <GlobeWithOrbitingGlbShuttle width={width || 0} height={height || 0} />;
       case 'orbitingr3fshuttle':
         return <GlobeWithOrbitingR3FShuttle width={width || 0} height={height || 0} />;
       default:
@@ -65,7 +62,6 @@ function App() {
           <option value="satellites">Globe with Satellites</option>
           <option value="glbmodel">GLB Model Loader</option>
           <option value="orbitingshuttle">Orbiting Shuttle</option>
-          <option value="orbitingglbshuttle">Orbiting GLB Shuttle</option>
           <option value="orbitingr3fshuttle">Orbiting R3F Shuttle</option>
         </select>
       </div>
