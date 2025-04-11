@@ -4,9 +4,11 @@ import GlobeWithArcs from './GlobeWithArcs';
 import GlobeWithSatellites from './GlobeWithSatellites';
 import MyGlobe from './MyGlobe';
 import TiledGlobe from './TiledGlobe';
+import { GlbModelLoader } from './GlbModelLoader';
 import { useResizeDetector } from 'react-resize-detector';
+import { useGLTF } from '@react-three/drei';
 
-type GlobeType = 'tiled' | 'arcs' | 'basic' | 'airlines' | 'satellites';
+type GlobeType = 'tiled' | 'arcs' | 'basic' | 'airlines' | 'satellites' | 'glbmodel';
 
 function App() {
   const { width, height, ref } = useResizeDetector();
@@ -24,6 +26,10 @@ function App() {
         return <GlobeWithAirlineRoutes width={width || 0} height={height || 0} />;
       case 'satellites':
         return <GlobeWithSatellites width={width || 0} height={height || 0} />;
+      case 'glbmodel':
+        return <div style={{ width: `${width || 0}px`, height: `${height || 0}px` }}>
+          <GlbModelLoader path="/Shuttle Model.glb" />
+        </div>;
       default:
         return null;
     }
@@ -32,8 +38,8 @@ function App() {
   return (
     <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '20px' }}>
-        <select 
-          value={selectedGlobe} 
+        <select
+          value={selectedGlobe}
           onChange={(e) => setSelectedGlobe(e.target.value as GlobeType)}
           style={{
             padding: '8px',
@@ -47,6 +53,7 @@ function App() {
           <option value="basic">Basic Globe</option>
           <option value="airlines">Globe with Airline Routes</option>
           <option value="satellites">Globe with Satellites</option>
+          <option value="glbmodel">GLB Model Loader</option>
         </select>
       </div>
       <div ref={ref} style={{ flex: 1, minHeight: 0 }}>
@@ -55,6 +62,8 @@ function App() {
     </div>
   );
 }
+
+useGLTF.preload('/Shuttle Model.glb');
 
 export default App;
 
