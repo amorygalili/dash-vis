@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -10,7 +10,15 @@ interface Props {
 }
 
 // Shuttle component that loads the GLB model and handles the orbit animation
-function Shuttle({ path, globeRadius }: { path: string; globeRadius: number }) {
+function Shuttle({
+  path,
+  globeRadius,
+  onPositionUpdate
+}: {
+  path: string;
+  globeRadius: number;
+  onPositionUpdate?: (position: THREE.Vector3, lookAt: THREE.Vector3) => void;
+}) {
   const shuttleRef = useRef<THREE.Group>(null);
   const [angle, setAngle] = useState(0);
 
@@ -20,8 +28,6 @@ function Shuttle({ path, globeRadius }: { path: string; globeRadius: number }) {
   // Clone and prepare the model
   useEffect(() => {
     if (shuttleRef.current && scene) {
-      console.log('GLB Model loaded, preparing shuttle');
-
       // Clone the scene
       const modelClone = scene.clone();
 
@@ -30,8 +36,6 @@ function Shuttle({ path, globeRadius }: { path: string; globeRadius: number }) {
 
       // Add the scene to the group
       shuttleRef.current.add(modelClone);
-
-      console.log('Shuttle model added to scene');
     }
   }, [scene]);
 
@@ -53,7 +57,7 @@ function Shuttle({ path, globeRadius }: { path: string; globeRadius: number }) {
       // Update the position
       shuttleRef.current.position.set(x, y, z);
 
-      // Make the shuttle face the direction of travel
+      // Calculate direction of travel for orientation
       const tangent = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle));
       const normal = new THREE.Vector3(0, 1, 0);
       const binormal = new THREE.Vector3().crossVectors(normal, tangent);
@@ -64,6 +68,21 @@ function Shuttle({ path, globeRadius }: { path: string; globeRadius: number }) {
 
       // Add a slight tilt in the direction of the orbit
       shuttleRef.current.rotateY(Math.PI / 2);
+
+      // Calculate a point to look at (in front of the shuttle)
+      // This will be used for the shuttle camera view
+      if (onPositionUpdate) {
+        // Get the current position
+        const position = new THREE.Vector3();
+        shuttleRef.current.getWorldPosition(position);
+
+        // Calculate a point in front of the shuttle to look at
+        // We'll look at the Earth (origin) but slightly offset to see where we're going
+        const lookAt = new THREE.Vector3(0, 0, 0);
+
+        // Call the callback with the updated position and lookAt
+        onPositionUpdate(position, lookAt);
+      }
     }
   });
 
@@ -74,12 +93,23 @@ function Shuttle({ path, globeRadius }: { path: string; globeRadius: number }) {
 
 
 
+// Camera view options
+type CameraView = 'orbit' | 'shuttle';
+
 // Main scene component with globe and shuttle
-const GlobeScene: React.FC = () => {
+const GlobeScene: React.FC<{ cameraView: CameraView }> = ({ cameraView }) => {
   const globeRef = useRef<any>(undefined);
   const controlsRef = useRef<any>(undefined);
   const { camera } = useThree();
   const [globeRadius, setGlobeRadius] = useState(100); // Default radius
+  const [shuttlePosition, setShuttlePosition] = useState<THREE.Vector3 | null>(null);
+  const [shuttleLookAt, setShuttleLookAt] = useState<THREE.Vector3 | null>(null);
+
+  // Handle shuttle position updates
+  const handleShuttlePositionUpdate = useCallback((position: THREE.Vector3, lookAt: THREE.Vector3) => {
+    setShuttlePosition(position.clone());
+    setShuttleLookAt(lookAt.clone());
+  }, []);
 
   // Update globe radius when the globe is ready
   useEffect(() => {
@@ -93,6 +123,30 @@ const GlobeScene: React.FC = () => {
     }
   }, [camera]);
 
+  // Update camera position based on selected view
+  useEffect(() => {
+    if (cameraView === 'shuttle' && shuttlePosition && shuttleLookAt && camera) {
+      // Position the camera slightly behind and above the shuttle
+      const offset = new THREE.Vector3(0, 10, -30); // Offset from shuttle position
+      const cameraPosition = shuttlePosition.clone().add(offset);
+
+      // Set camera position and look at the Earth
+      camera.position.copy(cameraPosition);
+      camera.lookAt(shuttleLookAt);
+      camera.updateProjectionMatrix();
+
+      // Disable controls when in shuttle view
+      if (controlsRef.current) {
+        controlsRef.current.enabled = false;
+      }
+    } else {
+      // Re-enable controls when in orbit view
+      if (controlsRef.current) {
+        controlsRef.current.enabled = true;
+      }
+    }
+  }, [cameraView, shuttlePosition, shuttleLookAt, camera]);
+
   return (
     <>
       <OrbitControls
@@ -102,6 +156,7 @@ const GlobeScene: React.FC = () => {
         dampingFactor={0.1}
         zoomSpeed={0.3}
         rotateSpeed={0.3}
+        enabled={cameraView === 'orbit'}
       />
 
       {/* r3f-globe component */}
@@ -120,7 +175,11 @@ const GlobeScene: React.FC = () => {
       />
 
       {/* Orbiting Shuttle */}
-      <Shuttle path="/Shuttle Model.glb" globeRadius={globeRadius} />
+      <Shuttle
+        path="/Shuttle Model.glb"
+        globeRadius={globeRadius}
+        onPositionUpdate={handleShuttlePositionUpdate}
+      />
     </>
   );
 };
@@ -128,14 +187,54 @@ const GlobeScene: React.FC = () => {
 // Main component
 const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
   // Preload the model
+  useGLTF.preload('/Shuttle Model.glb');
+
+  // State for camera view selection
+  const [cameraView, setCameraView] = useState<CameraView>('orbit');
 
   return (
-    <div style={{ width: `${width}px`, height: `${height}px` }}>
+    <div style={{ width: `${width}px`, height: `${height}px`, position: 'relative' }}>
+      {/* Camera view selector */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        left: '10px',
+        zIndex: 100,
+        background: 'rgba(0,0,0,0.5)',
+        padding: '5px',
+        borderRadius: '5px',
+        color: 'white',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="radio"
+            name="cameraView"
+            value="orbit"
+            checked={cameraView === 'orbit'}
+            onChange={() => setCameraView('orbit')}
+            style={{ marginRight: '5px' }}
+          />
+          Orbit View
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="cameraView"
+            value="shuttle"
+            checked={cameraView === 'shuttle'}
+            onChange={() => setCameraView('shuttle')}
+            style={{ marginRight: '5px' }}
+          />
+          Shuttle View
+        </label>
+      </div>
+
       <Canvas
         flat
         camera={{ fov: 50, position: [0, 0, 400], near: 0.01, far: 10000 }}
       >
-        <GlobeScene />
+        <GlobeScene cameraView={cameraView} />
         <color attach="background" args={['black']} />
         <ambientLight color={0xcccccc} intensity={Math.PI} />
         <directionalLight intensity={0.6 * Math.PI} />
