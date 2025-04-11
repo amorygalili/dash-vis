@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Globe from 'react-globe.gl';
 import * as THREE from 'three';
-// @ts-ignore - These modules exist but TypeScript can't find them
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-// @ts-ignore - These modules exist but TypeScript can't find them
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 interface Props {
   width: number;
@@ -20,120 +16,63 @@ interface ShuttleData {
 const GlobeWithOrbitingGlbShuttle = ({ width, height }: Props) => {
   const globeRef = useRef<any>(undefined);
   const [shuttleData, setShuttleData] = useState<ShuttleData[]>([]);
-  const shuttleModelRef = useRef<THREE.Group | null>(null);
+  const animationRef = useRef<number | null>(null);
 
-  // Load the shuttle model and start animation
+  // Create a simple shuttle model and start animation
   useEffect(() => {
-    // Initialize DRACO loader
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    console.log('Setting up shuttle orbit animation');
 
-    // Initialize GLTF loader with DRACO support
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.setDRACOLoader(dracoLoader);
+    // Initialize shuttle data
+    setShuttleData([{
+      lat: 0,
+      lng: 0,
+      alt: 0.5 // Altitude above the globe surface
+    }]);
 
-    // Load the model
-    gltfLoader.load('/Shuttle Model.glb',
-      // @ts-ignore - Type issues with the GLTFLoader
-      (gltf: any) => {
-        const model = gltf.scene;
+    // Start animation after a short delay to ensure the globe is initialized
+    const timeoutId = setTimeout(() => {
+      if (!globeRef.current) {
+        console.error('Globe ref not available');
+        return;
+      }
 
-        // Scale the model down to an appropriate size
-        model.scale.set(0.05, 0.05, 0.05);
+      console.log('Starting shuttle animation');
+      let angle = 0;
+      const orbitRadius = 40; // Orbit radius in degrees
+      const orbitSpeed = 1; // Degrees per frame
+      const orbitAltitude = 0.5; // Altitude above the globe surface
 
-        // Create a group to hold the model
-        const group = new THREE.Group();
-        group.add(model);
+      const animateOrbit = () => {
+        angle += orbitSpeed;
 
-        // Store the model in the ref
-        shuttleModelRef.current = group;
+        // Calculate new position along the orbit
+        const lat = orbitRadius * Math.sin(angle * Math.PI / 180);
+        const lng = angle % 360;
 
-        // Initialize shuttle data
         setShuttleData([{
-          lat: 0,
-          lng: 0,
-          alt: 0.2 // Altitude above the globe surface
+          lat,
+          lng,
+          alt: orbitAltitude
         }]);
 
-        // Wait for the next frame to ensure the globe is initialized
-        const timeoutId = setTimeout(() => {
-          if (!globeRef.current) {
-            console.error('Globe ref not available');
-            return;
-          }
+        animationRef.current = requestAnimationFrame(animateOrbit);
+      };
 
-          console.log('Starting GLB shuttle animation');
-          let angle = 0;
-          const orbitRadius = 30; // Orbit radius in degrees
-          const orbitSpeed = 0.5; // Degrees per frame
-          const orbitAltitude = 0.2; // Altitude above the globe surface
+      animationRef.current = requestAnimationFrame(animateOrbit);
+    }, 1000); // Wait 1 second for everything to initialize
 
-          const animateOrbit = () => {
-            angle += orbitSpeed;
-
-            // Calculate new position along the orbit
-            const lat = orbitRadius * Math.sin(angle * Math.PI / 180);
-            const lng = angle % 360;
-
-            setShuttleData([{
-              lat,
-              lng,
-              alt: orbitAltitude
-            }]);
-
-            requestAnimationFrame(animateOrbit);
-          };
-
-          const animationId = requestAnimationFrame(animateOrbit);
-
-          // Store the animation ID in a ref so we can clean it up later
-          const cleanupRef = { current: animationId };
-
-          // Set up cleanup function
-          return () => {
-            console.log('Cleaning up GLB shuttle animation');
-            cancelAnimationFrame(cleanupRef.current);
-          };
-        }, 500); // Wait 500ms for everything to initialize
-
-        return () => {
-          clearTimeout(timeoutId);
-        };
-      },
-      // @ts-ignore - Type issues with the GLTFLoader
-      (xhr: any) => {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-      },
-      // @ts-ignore - Type issues with the GLTFLoader
-      (error: any) => {
-        console.error('Error loading shuttle model:', error);
-      }
-    );
-
-    // Clean up
     return () => {
-      dracoLoader.dispose();
+      clearTimeout(timeoutId);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
   }, []);
 
-  // Custom object update function to position and rotate the shuttle
-  const customThreeObjectUpdate = (obj: THREE.Object3D, objData: object) => {
-    if (!globeRef.current) return;
-
-    const d = objData as ShuttleData;
-
-    // Position the shuttle at the correct coordinates
-    const position = globeRef.current.getCoords(d.lat, d.lng, d.alt);
-    Object.assign(obj.position, position);
-
-    // Calculate direction of travel (tangent to the orbit)
-    const nextLng = (d.lng + 1) % 360;
-    const nextPosition = globeRef.current.getCoords(d.lat, nextLng, d.alt);
-
-    // Make the shuttle face the direction of travel
-    const lookAtPosition = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z);
-    obj.lookAt(lookAtPosition);
-  };
+  // Log the current state for debugging
+  useEffect(() => {
+    console.log('Shuttle data updated:', shuttleData);
+  }, [shuttleData]);
 
   return (
     <Globe
@@ -144,15 +83,47 @@ const GlobeWithOrbitingGlbShuttle = ({ width, height }: Props) => {
       bumpImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png"
       backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
       customLayerData={shuttleData}
+      onGlobeReady={() => console.log('Globe is ready')}
       customThreeObject={() => {
-        // Return the shuttle model
-        if (!shuttleModelRef.current) {
-          // Return an empty mesh if the model isn't ready yet
-          return new THREE.Mesh();
-        }
-        return shuttleModelRef.current.clone();
+        // Create a visible shuttle model
+        const group = new THREE.Group();
+
+        // Create a cone for the body
+        const bodyGeometry = new THREE.ConeGeometry(2, 8, 16);
+        const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.rotation.x = -Math.PI / 2; // Point forward
+        group.add(body);
+
+        // Create wings
+        const wingGeometry = new THREE.BoxGeometry(10, 1, 3);
+        const wingMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const wings = new THREE.Mesh(wingGeometry, wingMaterial);
+        wings.position.y = -2;
+        group.add(wings);
+
+        // Scale up for visibility
+        group.scale.set(3, 3, 3);
+
+        return group;
       }}
-      customThreeObjectUpdate={customThreeObjectUpdate}
+      customThreeObjectUpdate={(obj, d) => {
+        if (!globeRef.current) return;
+
+        const data = d as ShuttleData;
+
+        // Position the shuttle at the correct coordinates
+        const position = globeRef.current.getCoords(data.lat, data.lng, data.alt);
+        Object.assign(obj.position, position);
+
+        // Calculate direction of travel (tangent to the orbit)
+        const nextLng = (data.lng + 1) % 360;
+        const nextPosition = globeRef.current.getCoords(data.lat, nextLng, data.alt);
+
+        // Make the shuttle face the direction of travel
+        const lookAtPosition = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z);
+        obj.lookAt(lookAtPosition);
+      }}
     />
   );
 };
