@@ -159,11 +159,10 @@ const GlobeScene: React.FC<{ cameraView: CameraView }> = ({ cameraView }) => {
         enabled={cameraView === 'orbit'}
       />
 
-      {/* r3f-globe component */}
+      {/* r3f-globe component with satellite imagery */}
       <R3fGlobe
         ref={globeRef}
-        globeImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg"
-        bumpImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png"
+        globeTileEngineUrl={(x, y, l) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${l}/${y}/${x}`}
         onGlobeReady={() => {
           if (globeRef.current) {
             const radius = globeRef.current.getGlobeRadius();
@@ -200,34 +199,56 @@ const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
         top: '10px',
         left: '10px',
         zIndex: 100,
-        background: 'rgba(0,0,0,0.5)',
-        padding: '5px',
-        borderRadius: '5px',
+        background: 'rgba(0,0,0,0.7)',
+        padding: '10px',
+        borderRadius: '8px',
         color: 'white',
-        fontFamily: 'Arial, sans-serif'
+        fontFamily: 'Arial, sans-serif',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        backdropFilter: 'blur(5px)',
+        border: '1px solid rgba(255,255,255,0.1)'
       }}>
-        <label style={{ marginRight: '10px' }}>
-          <input
-            type="radio"
-            name="cameraView"
-            value="orbit"
-            checked={cameraView === 'orbit'}
-            onChange={() => setCameraView('orbit')}
-            style={{ marginRight: '5px' }}
-          />
-          Orbit View
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="cameraView"
-            value="shuttle"
-            checked={cameraView === 'shuttle'}
-            onChange={() => setCameraView('shuttle')}
-            style={{ marginRight: '5px' }}
-          />
-          Shuttle View
-        </label>
+        <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>
+          Camera View
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+            padding: '4px',
+            borderRadius: '4px',
+            backgroundColor: cameraView === 'orbit' ? 'rgba(255,255,255,0.2)' : 'transparent'
+          }}>
+            <input
+              type="radio"
+              name="cameraView"
+              value="orbit"
+              checked={cameraView === 'orbit'}
+              onChange={() => setCameraView('orbit')}
+              style={{ marginRight: '8px' }}
+            />
+            <span>🌎 Orbit View</span>
+          </label>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+            padding: '4px',
+            borderRadius: '4px',
+            backgroundColor: cameraView === 'shuttle' ? 'rgba(255,255,255,0.2)' : 'transparent'
+          }}>
+            <input
+              type="radio"
+              name="cameraView"
+              value="shuttle"
+              checked={cameraView === 'shuttle'}
+              onChange={() => setCameraView('shuttle')}
+              style={{ marginRight: '8px' }}
+            />
+            <span>🚀 Shuttle View</span>
+          </label>
+        </div>
       </div>
 
       <Canvas
@@ -236,8 +257,9 @@ const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
       >
         <GlobeScene cameraView={cameraView} />
         <color attach="background" args={['black']} />
-        <ambientLight color={0xcccccc} intensity={Math.PI} />
-        <directionalLight intensity={0.6 * Math.PI} />
+        <ambientLight color={0xffffff} intensity={0.8 * Math.PI} />
+        <directionalLight position={[1, 1, 1]} intensity={0.8 * Math.PI} />
+        <directionalLight position={[-1, -1, -1]} intensity={0.2 * Math.PI} />
       </Canvas>
     </div>
   );
