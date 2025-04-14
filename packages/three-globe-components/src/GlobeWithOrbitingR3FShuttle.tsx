@@ -170,7 +170,33 @@ const GlobeScene: React.FC<{ cameraView: CameraView }> = ({ cameraView }) => {
       const radius = globeRef.current.getGlobeRadius();
       if (radius) {
         setGlobeRadius(radius);
+
+        // Initialize controls with dynamic zoom speed
+        if (controlsRef.current) {
+          const distToSurface = camera.position.length() - radius;
+          controlsRef.current.zoomSpeed = Math.max(0.02, Math.sqrt(distToSurface / radius) * 0.3);
+          controlsRef.current.rotateSpeed = Math.max(0.005, distToSurface / radius * 0.4);
+        }
       }
+    }
+  }, [camera]);
+
+  // Handle camera controls changes
+  const handleControlsChange = useCallback(() => {
+    if (globeRef.current && controlsRef.current) {
+      // Report new camera position to globe for tile management
+      globeRef.current.setPointOfView(camera);
+
+      // Adjust controls speed based on altitude
+      const R = globeRef.current.getGlobeRadius();
+      const distToSurface = camera.position.length() - R;
+
+      // Make zoom speed slower when closer to the surface
+      // This gives more precise control when zoomed in
+      controlsRef.current.zoomSpeed = Math.max(0.02, Math.sqrt(distToSurface / R) * 0.3);
+
+      // Also adjust rotation speed for better control when zoomed in
+      controlsRef.current.rotateSpeed = Math.max(0.005, distToSurface / R * 0.4);
     }
   }, [camera]);
 
@@ -249,6 +275,7 @@ const GlobeScene: React.FC<{ cameraView: CameraView }> = ({ cameraView }) => {
         zoomSpeed={0.3}
         rotateSpeed={0.3}
         enabled={cameraView === 'orbit'}
+        onChange={handleControlsChange}
       />
 
       {/* r3f-globe component with satellite imagery */}
