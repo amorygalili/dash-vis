@@ -243,7 +243,7 @@ const GlobeScene: React.FC<{ cameraView: CameraView }> = ({ cameraView }) => {
     <>
       <OrbitControls
         ref={controlsRef}
-        minDistance={globeRadius * 1.1}
+        minDistance={globeRadius * 1.001}
         maxDistance={1000}
         dampingFactor={0.1}
         zoomSpeed={0.3}
