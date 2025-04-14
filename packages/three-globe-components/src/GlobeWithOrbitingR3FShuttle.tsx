@@ -142,9 +142,8 @@ function Shuttle({
 type CameraView = 'orbit' | 'shuttle';
 
 // Main scene component with globe and shuttle
-const GlobeScene: React.FC<{ cameraView: CameraView }> = ({ cameraView }) => {
+const GlobeScene: React.FC<{ cameraView: CameraView, controlsRef: React.RefObject<any> }> = ({ cameraView, controlsRef }) => {
   const globeRef = useRef<any>(undefined);
-  const controlsRef = useRef<any>(undefined);
   const { camera } = useThree();
   const [globeRadius, setGlobeRadius] = useState(100); // Default radius
   const [shuttlePosition, setShuttlePosition] = useState<THREE.Vector3 | null>(null);
@@ -314,6 +313,22 @@ const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
   // State for camera view selection
   const [cameraView, setCameraView] = useState<CameraView>('orbit');
 
+  // Reference to the controls for reset functionality
+  const controlsRef = useRef<any>(null);
+
+  // Function to reset the camera to the default position
+  const handleResetCamera = useCallback(() => {
+    if (controlsRef.current) {
+      // Manually set the camera to the default position
+      const camera = controlsRef.current.object;
+      if (camera) {
+        camera.position.set(0, 0, 400);
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+      }
+    }
+  }, []);
+
   return (
     <div style={{ width: `${width}px`, height: `${height}px`, position: 'relative' }}>
       {/* Camera view selector */}
@@ -371,6 +386,29 @@ const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
             />
             <span>🚀 Shuttle View</span>
           </label>
+
+          {/* Reset camera button */}
+          <button
+            onClick={handleResetCamera}
+            style={{
+              marginTop: '8px',
+              padding: '6px 10px',
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.25)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}
+          >
+            🔄 Reset Camera
+          </button>
         </div>
       </div>
 
@@ -378,7 +416,7 @@ const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
         flat
         camera={{ fov: 50, position: [0, 0, 400], near: 0.01, far: 10000 }}
       >
-        <GlobeScene cameraView={cameraView} />
+        <GlobeScene cameraView={cameraView} controlsRef={controlsRef} />
         <color attach="background" args={['black']} />
         <ambientLight color={0xffffff} intensity={0.8 * Math.PI} />
         <directionalLight position={[1, 1, 1]} intensity={0.8 * Math.PI} />
