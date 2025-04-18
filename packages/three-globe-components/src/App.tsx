@@ -6,7 +6,7 @@ import MyGlobe from './MyGlobe';
 import TiledGlobe from './TiledGlobe';
 import { GlbModelLoader } from './GlbModelLoader';
 import GlobeWithOrbitingShuttle from './GlobeWithOrbitingShuttle';
-import GlobeWithOrbitingR3FShuttleExample from './GlobeWithOrbitingR3FShuttleExample';
+import GlobeWithOrbitingR3FShuttleExample from './r3fshuttle/GlobeWithOrbitingR3FShuttleExample';
 import { useResizeDetector } from 'react-resize-detector';
 import { useGLTF } from "@react-three/drei";
 

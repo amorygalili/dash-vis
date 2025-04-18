@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import GlobeWithOrbitingR3FShuttle from './GlobeWithOrbitingR3FShuttle';
-import { OrbitPoint } from './types';
+import { OrbitPoint } from '../types';
 
 interface Props {
   width: number;
