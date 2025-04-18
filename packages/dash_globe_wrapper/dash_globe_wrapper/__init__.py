@@ -33,7 +33,8 @@ async_resources = [
     "DashBasicGlobe",
     "DashGlobeWithArcs",
     "DashGlobeWithAirlineRoutes",
-    "DashGlobeWithSatellites"
+    "DashGlobeWithSatellites",
+    "DashGlobeWithOrbitingR3FShuttle"
 ]
 
 _js_dist = []

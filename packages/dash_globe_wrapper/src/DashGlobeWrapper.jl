@@ -8,6 +8,7 @@ const version = "0.0.1"
 include("jl/''_dashbasicglobe.jl")
 include("jl/''_dashglobewithairlineroutes.jl")
 include("jl/''_dashglobewitharcs.jl")
+include("jl/''_dashglobewithorbitingr3fshuttle.jl")
 include("jl/''_dashglobewithsatellites.jl")
 include("jl/''_dashglobewrapper.jl")
 
@@ -54,6 +55,13 @@ DashBase.Resource(
     type = :js
 ),
 DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithOrbitingR3FShuttle.js",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithOrbitingR3FShuttle.js",
+    dynamic = nothing,
+    async = :true,
+    type = :js
+),
+DashBase.Resource(
     relative_package_path = "async-DashGlobeWrapper.js.map",
     external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWrapper.js.map",
     dynamic = true,
@@ -84,6 +92,13 @@ DashBase.Resource(
 DashBase.Resource(
     relative_package_path = "async-DashGlobeWithSatellites.js.map",
     external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithSatellites.js.map",
+    dynamic = true,
+    async = nothing,
+    type = :js
+),
+DashBase.Resource(
+    relative_package_path = "async-DashGlobeWithOrbitingR3FShuttle.js.map",
+    external_url = "https://unpkg.com/dash_globe_wrapper@0.0.1/dash_globe_wrapper/async-DashGlobeWithOrbitingR3FShuttle.js.map",
     dynamic = true,
     async = nothing,
     type = :js

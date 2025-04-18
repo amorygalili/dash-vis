@@ -3,5 +3,6 @@
 export(''DashBasicGlobe)
 export(''DashGlobeWithAirlineRoutes)
 export(''DashGlobeWithArcs)
+export(''DashGlobeWithOrbitingR3FShuttle)
 export(''DashGlobeWithSatellites)
 export(''DashGlobeWrapper)

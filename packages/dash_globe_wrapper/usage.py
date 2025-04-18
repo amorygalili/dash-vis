@@ -12,7 +12,8 @@ app.layout = html.Div([
             {'label': 'Globe with Arcs', 'value': 'arcs'},
             {'label': 'Basic Globe', 'value': 'basic'},
             {'label': 'Globe with Airline Routes', 'value': 'airlines'},
-            {'label': 'Globe with Satellites', 'value': 'satellites'}
+            {'label': 'Globe with Satellites', 'value': 'satellites'},
+            {'label': 'Globe with Orbiting R3F Shuttle', 'value': 'shuttle'}
         ],
         value='tiled'
     ),
@@ -51,6 +52,12 @@ def update_globe(selected_value):
     elif selected_value == 'satellites':
         return dash_globe_wrapper.DashGlobeWithSatellites(
             id='satellites-globe',
+            width=800,
+            height=600
+        )
+    elif selected_value == 'shuttle':
+        return dash_globe_wrapper.DashGlobeWithOrbitingR3FShuttle(
+            id='shuttle-globe',
             width=800,
             height=600
         )

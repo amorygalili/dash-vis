@@ -5,3 +5,4 @@ export const DashGlobeWithArcs = React.lazy(() => import(/* webpackChunkName: "D
 export const DashGlobeWithAirlineRoutes = React.lazy(() => import(/* webpackChunkName: "DashGlobeWithAirlineRoutes" */ './fragments/DashGlobeWithAirlineRoutes.react'));
 export const DashGlobeWithSatellites = React.lazy(() => import(/* webpackChunkName: "DashGlobeWithSatellites" */ './fragments/DashGlobeWithSatellites.react'));
 export const DashBasicGlobe = React.lazy(() => import(/* webpackChunkName: "DashBasicGlobe" */ './fragments/DashBasicGlobe.react'));
+export const DashGlobeWithOrbitingR3FShuttle = React.lazy(() => import(/* webpackChunkName: "DashGlobeWithOrbitingR3FShuttle" */ './fragments/DashGlobeWithOrbitingR3FShuttle.react'));
