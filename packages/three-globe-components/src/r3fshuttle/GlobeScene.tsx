@@ -32,55 +32,41 @@ function GlobeScene({
   const { camera } = useThree();
   const [globeRadius, setGlobeRadius] = useState(100); // Default radius
 
+  // Helper function to update controls speeds based on distance to surface
+  const updateControlsSpeeds = useCallback(() => {
+    const controls = controlsRef.current;
+    const globe = globeRef.current;
+    if (!controls || !globe) return;
+
+    const radius = globe.getGlobeRadius();
+    const distToSurface = camera.position.length() - radius;
+
+    // Make zoom speed slower when closer to the surface
+    controls.zoomSpeed = Math.max(
+      0.02,
+      Math.sqrt(distToSurface / radius) * 0.3
+    );
+
+    // Also adjust rotation speed for better control when zoomed in
+    controls.rotateSpeed = Math.max(0.005, (distToSurface / radius) * 0.4);
+  }, [camera]);
+
   // Update globe radius when the globe is ready
   useEffect(() => {
     if (globeRef.current) {
       globeRef.current.setPointOfView(camera);
-      // Get the actual globe radius and update state
-      const radius = globeRef.current.getGlobeRadius();
-      if (radius) {
-        setGlobeRadius(radius);
-
-        // Initialize controls with dynamic zoom speed
-        if (controlsRef.current) {
-          const distToSurface = camera.position.length() - radius;
-          controlsRef.current.zoomSpeed = Math.max(
-            0.02,
-            Math.sqrt(distToSurface / radius) * 0.3
-          );
-          controlsRef.current.rotateSpeed = Math.max(
-            0.005,
-            (distToSurface / radius) * 0.4
-          );
-        }
-      }
+      setGlobeRadius(globeRef.current.getGlobeRadius());
+      updateControlsSpeeds();
     }
   }, [camera]);
 
   // Handle camera controls changes
   const handleControlsChange = useCallback(() => {
     if (globeRef.current && controlsRef.current) {
-      // Report new camera position to globe for tile management
       globeRef.current.setPointOfView(camera);
-
-      // Adjust controls speed based on altitude
-      const R = globeRef.current.getGlobeRadius();
-      const distToSurface = camera.position.length() - R;
-
-      // Make zoom speed slower when closer to the surface
-      // This gives more precise control when zoomed in
-      controlsRef.current.zoomSpeed = Math.max(
-        0.02,
-        Math.sqrt(distToSurface / R) * 0.3
-      );
-
-      // Also adjust rotation speed for better control when zoomed in
-      controlsRef.current.rotateSpeed = Math.max(
-        0.005,
-        (distToSurface / R) * 0.4
-      );
+      updateControlsSpeeds();
     }
-  }, [camera]);
+  }, [camera, updateControlsSpeeds]);
 
   // Update camera position based on selected view
   useEffect(() => {
