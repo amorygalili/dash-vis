@@ -70,7 +70,7 @@ function DashGlobeWithOrbitingR3FShuttle({ id, width, height }) {
             <GlobeWithOrbitingR3FShuttle
                 width={width}
                 height={height}
-                shuttlePath="/Shuttle Model.glb"
+                shuttlePath="assets/Shuttle Model.glb"
                 shuttlePosition={shuttlePosition}
                 shuttleLookAt={shuttleLookAt}
                 orbitPathPoints={orbitPath}
