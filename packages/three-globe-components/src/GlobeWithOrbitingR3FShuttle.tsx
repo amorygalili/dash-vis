@@ -3,72 +3,34 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import R3fGlobe from 'r3f-globe';
+import { OrbitPoint } from './types';
 
 interface Props {
   width: number;
   height: number;
+  // Props for shuttle position and path
+  shuttlePath?: string; // Path to the shuttle model
+  shuttlePosition: THREE.Vector3; // Position for the shuttle
+  shuttleLookAt: THREE.Vector3; // LookAt point for the shuttle
+  orbitPathPoints: OrbitPoint[]; // Orbit path points
 }
 
-// Interface for orbit path points
-interface OrbitPoint {
-  lat: number;
-  lng: number;
-  alt: number;
-}
+// Using OrbitPoint interface from types.ts
 
-// Shuttle component that loads the GLB model and handles the orbit animation
+// Shuttle component that loads the GLB model and displays it at the given position
 function Shuttle({
   path,
-  globeRadius,
-  onPositionUpdate,
-  onOrbitPathUpdate
+  position,
+  lookAt,
 }: {
   path: string;
-  globeRadius: number;
-  onPositionUpdate?: (position: THREE.Vector3, lookAt: THREE.Vector3) => void;
-  onOrbitPathUpdate?: (points: OrbitPoint[]) => void;
+  position: THREE.Vector3;
+  lookAt: THREE.Vector3;
 }) {
   const shuttleRef = useRef<THREE.Group>(null);
-  const [angle, setAngle] = useState(0);
-  const orbitPathRef = useRef<OrbitPoint[]>([]);
 
   // Load the model
   const { scene } = useGLTF(path);
-
-  // Generate orbit path points
-  useEffect(() => {
-    // Generate points for the complete orbit path
-    const orbitPoints: OrbitPoint[] = [];
-    const numPoints = 100; // Number of points in the orbit path
-    const orbitRadius = globeRadius * 1.3; // Orbit above the globe surface
-    const height = globeRadius * 0.3; // Height above the equator
-
-    for (let i = 0; i < numPoints; i++) {
-      const a = (i / numPoints) * Math.PI * 2;
-      // Convert to lat/lng coordinates
-      const x = orbitRadius * Math.cos(a);
-      const z = orbitRadius * Math.sin(a);
-      const y = height * Math.sin(a * 2); // Add some vertical movement
-
-      // Convert cartesian to spherical coordinates
-      const r = Math.sqrt(x*x + y*y + z*z);
-      const lat = Math.asin(y / r) * 180 / Math.PI;
-      const lng = Math.atan2(z, x) * 180 / Math.PI;
-
-      orbitPoints.push({
-        lat,
-        lng,
-        alt: (r - globeRadius) / globeRadius // Altitude as a ratio of globe radius
-      });
-    }
-
-    orbitPathRef.current = orbitPoints;
-
-    // Notify parent component about the orbit path
-    if (onOrbitPathUpdate) {
-      onOrbitPathUpdate(orbitPoints);
-    }
-  }, [globeRadius, onOrbitPathUpdate]);
 
   // Clone and prepare the model
   useEffect(() => {
@@ -76,58 +38,37 @@ function Shuttle({
       // Clone the scene
       const modelClone = scene.clone();
 
-      // Scale the model to an appropriate size (smaller than before)
-      modelClone.scale.set(2, 2, 2); // Smaller scale
+      // Scale the model to an appropriate size
+      // modelClone.scale.set(2, 2, 2);
 
-      // Add the scene to the group
-      shuttleRef.current.add(modelClone);
+       // Apply initial rotations to align the model with its direction of travel
+      // Create a container group for the model to apply rotations
+      const modelContainer = new THREE.Group();
+      modelContainer.add(modelClone);  
+      modelContainer.rotateZ(-Math.PI / 2);
+      modelContainer.rotateY(-Math.PI / 2);
+
+      // Add the container to the main group
+      shuttleRef.current.add(modelContainer);
     }
   }, [scene]);
 
-  // Animate the shuttle orbiting the globe
+  // Update position and orientation
   useFrame(() => {
     if (shuttleRef.current) {
-      // Update the angle (slower movement)
-      setAngle(prev => (prev + 0.002) % (Math.PI * 2)); // Reduced speed
+      // Set the shuttle position
+      shuttleRef.current.position.copy(position);
 
-      // Calculate the position on the orbit
-      const orbitRadius = globeRadius * 1.3; // Orbit above the globe surface
-      const height = globeRadius * 0.3; // Height above the equator
+      // Calculate direction vector from position to lookAt
+      const direction = new THREE.Vector3().subVectors(lookAt, position).normalize();
 
-      // Calculate position using spherical coordinates
-      const x = orbitRadius * Math.cos(angle);
-      const z = orbitRadius * Math.sin(angle);
-      const y = height * Math.sin(angle * 2); // Add some vertical movement
+      // Create a rotation matrix to orient the shuttle
+      const up = new THREE.Vector3(0, 1, 0);
+      const right = new THREE.Vector3().crossVectors(direction, up).normalize();
+      const newUp = new THREE.Vector3().crossVectors(right, direction).normalize();
 
-      // Update the position
-      shuttleRef.current.position.set(x, y, z);
-
-      // Calculate direction of travel for orientation
-      const tangent = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle));
-      const normal = new THREE.Vector3(0, 1, 0);
-      const binormal = new THREE.Vector3().crossVectors(normal, tangent);
-
-      // Create a rotation matrix
-      const matrix = new THREE.Matrix4().makeBasis(tangent, binormal, normal);
+      const matrix = new THREE.Matrix4().makeBasis(right, newUp, direction.negate());
       shuttleRef.current.quaternion.setFromRotationMatrix(matrix);
-
-      // Add a slight tilt in the direction of the orbit
-      shuttleRef.current.rotateY(Math.PI / 2);
-
-      // Calculate a point to look at (in front of the shuttle)
-      // This will be used for the shuttle camera view
-      if (onPositionUpdate) {
-        // Get the current position
-        const position = new THREE.Vector3();
-        shuttleRef.current.getWorldPosition(position);
-
-        // Calculate a point in front of the shuttle to look at
-        // We'll look at the Earth (origin) but slightly offset to see where we're going
-        const lookAt = new THREE.Vector3(0, 0, 0);
-
-        // Call the callback with the updated position and lookAt
-        onPositionUpdate(position, lookAt);
-      }
     }
   });
 
@@ -142,24 +83,24 @@ function Shuttle({
 type CameraView = 'orbit' | 'shuttle';
 
 // Main scene component with globe and shuttle
-const GlobeScene: React.FC<{ cameraView: CameraView, controlsRef: React.RefObject<any> }> = ({ cameraView, controlsRef }) => {
+const GlobeScene: React.FC<{
+  cameraView: CameraView,
+  controlsRef: React.RefObject<any>,
+  shuttlePath?: string,
+  shuttlePosition: THREE.Vector3,
+  shuttleLookAt: THREE.Vector3,
+  orbitPathPoints: OrbitPoint[]
+}> = ({
+  cameraView,
+  controlsRef,
+  shuttlePath = "/Shuttle Model.glb",
+  shuttlePosition,
+  shuttleLookAt,
+  orbitPathPoints
+}) => {
   const globeRef = useRef<any>(undefined);
   const { camera } = useThree();
   const [globeRadius, setGlobeRadius] = useState(100); // Default radius
-  const [shuttlePosition, setShuttlePosition] = useState<THREE.Vector3 | null>(null);
-  const [shuttleLookAt, setShuttleLookAt] = useState<THREE.Vector3 | null>(null);
-  const [orbitPath, setOrbitPath] = useState<OrbitPoint[]>([]);
-
-  // Handle shuttle position updates
-  const handleShuttlePositionUpdate = useCallback((position: THREE.Vector3, lookAt: THREE.Vector3) => {
-    setShuttlePosition(position.clone());
-    setShuttleLookAt(lookAt.clone());
-  }, []);
-
-  // Handle orbit path updates
-  const handleOrbitPathUpdate = useCallback((points: OrbitPoint[]) => {
-    setOrbitPath(points);
-  }, []);
 
   // Update globe radius when the globe is ready
   useEffect(() => {
@@ -203,8 +144,19 @@ const GlobeScene: React.FC<{ cameraView: CameraView, controlsRef: React.RefObjec
   useEffect(() => {
     if (cameraView === 'shuttle' && shuttlePosition && shuttleLookAt && camera) {
       // Position the camera slightly behind and above the shuttle
-      const offset = new THREE.Vector3(0, 10, -30); // Offset from shuttle position
-      const cameraPosition = shuttlePosition.clone().add(offset);
+      const shuttleDirection = new THREE.Vector3().subVectors(shuttleLookAt, shuttlePosition).normalize();
+
+      // Create an offset that's behind and above the shuttle
+      const up = new THREE.Vector3(0, 1, 0);
+      const right = new THREE.Vector3().crossVectors(shuttleDirection, up).normalize();
+      const adjustedUp = new THREE.Vector3().crossVectors(right, shuttleDirection).normalize();
+
+      // Create the offset vector (behind and above)
+      const offset = new THREE.Vector3()
+        .copy(shuttleDirection).multiplyScalar(-30) // 30 units behind
+        .add(adjustedUp.multiplyScalar(10)); // 10 units above
+
+      const cameraPosition = new THREE.Vector3().copy(shuttlePosition).add(offset);
 
       // Set camera position and look at the Earth
       camera.position.copy(cameraPosition);
@@ -223,27 +175,33 @@ const GlobeScene: React.FC<{ cameraView: CameraView, controlsRef: React.RefObjec
     }
   }, [cameraView, shuttlePosition, shuttleLookAt, camera]);
 
-  // Create orbit path visualization
+  // Create orbit path visualization from the provided orbit path points
   const OrbitPathVisualization = useCallback(() => {
-    if (orbitPath.length === 0) return null;
+    if (orbitPathPoints.length === 0) return null;
 
-    // Create a single continuous path for the entire orbit
-    // This ensures the path is smooth and follows the exact orbit of the shuttle
+    // For direct Cartesian coordinates visualization
+    // We'll create a simple line geometry from the points
+    const numPoints = orbitPathPoints.length;
     const orbitPoints: THREE.Vector3[] = [];
 
-    // Use more points for a smoother curve
-    const numPoints = 200;
-    const orbitRadius = globeRadius * 1.3; // Same as shuttle orbit radius
-    const height = globeRadius * 0.3; // Same as shuttle orbit height
+    // First, we'll create a set of points in Cartesian space that match the shuttle's orbit
+    for (let i = 0; i < numPoints; i++) {
+      const point = orbitPathPoints[i];
 
-    // Generate points for a complete orbit
-    for (let i = 0; i <= numPoints; i++) {
-      const angle = (i / numPoints) * Math.PI * 2;
+      // We need to convert the lat/lng/alt to Cartesian coordinates
+      // This is the inverse of the conversion in the example component
+      const lat = point.lat * Math.PI / 180; // Convert to radians
+      const lng = point.lng * Math.PI / 180; // Convert to radians
+      const alt = point.alt;
 
-      // Use the exact same calculation as the shuttle's position
-      const x = orbitRadius * Math.cos(angle);
-      const z = orbitRadius * Math.sin(angle);
-      const y = height * Math.sin(angle * 2); // Same vertical oscillation as the shuttle
+      // Calculate the radius from the altitude
+      const radius = globeRadius * (1 + alt);
+
+      // Convert spherical to Cartesian coordinates
+      // Note: This matches the coordinate system used by the shuttle
+      const x = radius * Math.cos(lat) * Math.cos(lng);
+      const z = radius * Math.cos(lat) * Math.sin(lng);
+      const y = radius * Math.sin(lat);
 
       orbitPoints.push(new THREE.Vector3(x, y, z));
     }
@@ -262,7 +220,7 @@ const GlobeScene: React.FC<{ cameraView: CameraView, controlsRef: React.RefObjec
     });
 
     return <primitive object={new THREE.Line(geometry, material)} />;
-  }, [orbitPath, globeRadius]);
+  }, [orbitPathPoints, globeRadius]);
 
   return (
     <>
@@ -292,21 +250,27 @@ const GlobeScene: React.FC<{ cameraView: CameraView, controlsRef: React.RefObjec
       />
 
       {/* Orbit Path Visualization */}
-      {orbitPath.length > 0 && <OrbitPathVisualization />}
+      {orbitPathPoints.length > 0 && <OrbitPathVisualization />}
 
       {/* Orbiting Shuttle */}
       <Shuttle
-        path="/Shuttle Model.glb"
-        globeRadius={globeRadius}
-        onPositionUpdate={handleShuttlePositionUpdate}
-        onOrbitPathUpdate={handleOrbitPathUpdate}
+        path={shuttlePath}
+        position={shuttlePosition}
+        lookAt={shuttleLookAt}
       />
     </>
   );
 };
 
 // Main component
-const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
+const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({
+  width,
+  height,
+  shuttlePath = "/Shuttle Model.glb",
+  shuttlePosition,
+  shuttleLookAt,
+  orbitPathPoints
+}) => {
   // Preload the model
   useGLTF.preload('/Shuttle Model.glb');
 
@@ -416,7 +380,14 @@ const GlobeWithOrbitingR3FShuttle: React.FC<Props> = ({ width, height }) => {
         flat
         camera={{ fov: 50, position: [0, 0, 400], near: 0.01, far: 10000 }}
       >
-        <GlobeScene cameraView={cameraView} controlsRef={controlsRef} />
+        <GlobeScene
+          cameraView={cameraView}
+          controlsRef={controlsRef}
+          shuttlePath={shuttlePath}
+          shuttlePosition={shuttlePosition}
+          shuttleLookAt={shuttleLookAt}
+          orbitPathPoints={orbitPathPoints}
+        />
         <color attach="background" args={['black']} />
         <ambientLight color={0xffffff} intensity={0.8 * Math.PI} />
         <directionalLight position={[1, 1, 1]} intensity={0.8 * Math.PI} />
