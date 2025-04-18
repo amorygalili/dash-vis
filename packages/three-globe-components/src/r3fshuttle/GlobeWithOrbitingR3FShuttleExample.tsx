@@ -76,22 +76,7 @@ const GlobeWithOrbitingR3FShuttleExample: React.FC<Props> = ({ width, height }) 
 
   return (
     <div style={{ position: 'relative' }}>
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        left: '10px',
-        zIndex: 100,
-        background: 'rgba(0,0,0,0.7)',
-        padding: '10px',
-        borderRadius: '5px',
-        color: 'white',
-        fontFamily: 'Arial, sans-serif'
-      }}>
-        <h3 style={{ margin: '0 0 10px 0' }}>Custom Shuttle Orbit Example</h3>
-        <p>This example shows a custom orbit with {verticalOscillations} vertical oscillations.</p>
-        <p>The shuttle position and orbit path are passed as props to the component.</p>
-      </div>
-
+    
       <GlobeWithOrbitingR3FShuttle
         width={width}
         height={height}
