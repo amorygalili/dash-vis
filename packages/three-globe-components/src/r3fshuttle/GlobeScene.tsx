@@ -5,9 +5,9 @@ import * as THREE from "three";
 import R3fGlobe from "r3f-globe";
 import { OrbitPoint } from "../types";
 import Shuttle from "./Shuttle";
+import { CameraView } from "./CameraViewSelector";
 
-// Camera view options
-type CameraView = "orbit" | "shuttle";
+// Camera view type is now imported from CameraViewSelector
 
 interface Props {
   cameraView: CameraView;
