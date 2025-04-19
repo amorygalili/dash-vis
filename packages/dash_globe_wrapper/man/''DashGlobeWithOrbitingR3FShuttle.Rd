@@ -10,13 +10,23 @@
 }
 
 \usage{
-''DashGlobeWithOrbitingR3FShuttle(id=NULL, height=NULL, width=NULL)
+''DashGlobeWithOrbitingR3FShuttle(id=NULL, height=NULL, orbitPathPoints=NULL,
+shuttleLookAt=NULL, shuttlePath=NULL, shuttlePosition=NULL,
+width=NULL)
 }
 
 \arguments{
 \item{id}{Character. }
 
 \item{height}{Numeric. }
+
+\item{orbitPathPoints}{Unnamed list. }
+
+\item{shuttleLookAt}{Named list. }
+
+\item{shuttlePath}{Character. }
+
+\item{shuttlePosition}{Named list. }
 
 \item{width}{Numeric. }
 }

@@ -20,6 +20,14 @@ Keyword arguments:
 
 - height (number; optional)
 
+- orbitPathPoints (list; optional)
+
+- shuttleLookAt (dict; optional)
+
+- shuttlePath (string; optional)
+
+- shuttlePosition (dict; optional)
+
 - width (number; optional)"""
     _children_props = []
     _base_nodes = ['children']
@@ -32,11 +40,15 @@ Keyword arguments:
         id: typing.Optional[typing.Union[str, dict]] = None,
         width: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
         height: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        shuttlePath: typing.Optional[str] = None,
+        shuttlePosition: typing.Optional[dict] = None,
+        shuttleLookAt: typing.Optional[dict] = None,
+        orbitPathPoints: typing.Optional[typing.Sequence] = None,
         **kwargs
     ):
-        self._prop_names = ['id', 'height', 'width']
+        self._prop_names = ['id', 'height', 'orbitPathPoints', 'shuttleLookAt', 'shuttlePath', 'shuttlePosition', 'width']
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'height', 'width']
+        self.available_properties = ['id', 'height', 'orbitPathPoints', 'shuttleLookAt', 'shuttlePath', 'shuttlePosition', 'width']
         self.available_wildcard_properties =            []
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()

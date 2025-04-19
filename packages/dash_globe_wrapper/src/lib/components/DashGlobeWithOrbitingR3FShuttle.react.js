@@ -14,6 +14,10 @@ DashGlobeWithOrbitingR3FShuttle.propTypes = {
     id: PropTypes.string,
     width: PropTypes.number,
     height: PropTypes.number,
+    shuttlePath: PropTypes.string,
+    shuttlePosition: PropTypes.object,
+    shuttleLookAt: PropTypes.object,
+    orbitPathPoints: PropTypes.array,
     setProps: PropTypes.func
 };
 
