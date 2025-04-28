@@ -12,7 +12,7 @@ interface Props {
   // Props for shuttle position and path
   shuttlePath?: string; // Path to the shuttle model
   shuttlePosition: THREE.Vector3; // Position for the shuttle
-  shuttleLookAt: THREE.Vector3; // LookAt point for the shuttle
+  shuttleRotation: THREE.Euler; // Rotation using Euler angles (roll, pitch, yaw)
   orbitPathPoints: OrbitPoint[]; // Orbit path points
 }
 
@@ -25,7 +25,7 @@ function GlobeWithOrbitingR3FShuttle({
   height,
   shuttlePath = "/Shuttle Model.glb",
   shuttlePosition,
-  shuttleLookAt,
+  shuttleRotation,
   orbitPathPoints
 }: Props) {
   // Preload the model
@@ -68,7 +68,7 @@ function GlobeWithOrbitingR3FShuttle({
           controlsRef={controlsRef}
           shuttlePath={shuttlePath}
           shuttlePosition={shuttlePosition}
-          shuttleLookAt={shuttleLookAt}
+          shuttleRotation={shuttleRotation}
           orbitPathPoints={orbitPathPoints}
         />
         <color attach="background" args={['black']} />

@@ -10,12 +10,14 @@ import OrbitPathVisualization from "./OrbitPathVisualization";
 
 // Camera view type is now imported from CameraViewSelector
 
+
+
 interface Props {
   cameraView: CameraView;
   controlsRef: React.RefObject<any>;
   shuttlePath?: string;
   shuttlePosition: THREE.Vector3;
-  shuttleLookAt: THREE.Vector3;
+  shuttleRotation: THREE.Euler; // Direct Euler rotation
   orbitPathPoints: OrbitPoint[];
 }
 
@@ -25,7 +27,7 @@ function GlobeScene({
   controlsRef,
   shuttlePath = "/Shuttle Model.glb",
   shuttlePosition,
-  shuttleLookAt,
+  shuttleRotation,
   orbitPathPoints,
 }: Props) {
   const globeRef = useRef<any>(undefined);
@@ -73,13 +75,31 @@ function GlobeScene({
     if (
       cameraView === "shuttle" &&
       shuttlePosition &&
-      shuttleLookAt &&
       camera
     ) {
-      // Position the camera slightly behind and above the shuttle
-      const shuttleDirection = new THREE.Vector3()
-        .subVectors(shuttleLookAt, shuttlePosition)
-        .normalize();
+      // Calculate the direction from the globe center to the shuttle
+      const directionFromCenter = new THREE.Vector3().copy(shuttlePosition).normalize();
+
+      // Create a rotation matrix for the base orientation (pointing away from globe center)
+      const upVector = new THREE.Vector3(0, 1, 0);
+      const rightVector = new THREE.Vector3().crossVectors(upVector, directionFromCenter).normalize();
+      const adjustedUpVector = new THREE.Vector3().crossVectors(directionFromCenter, rightVector).normalize();
+
+      // Apply the shuttle's rotation to get the actual direction
+      // First, create a vector pointing in the direction the shuttle is facing
+      const forward = new THREE.Vector3(0, 0, 1);
+
+      // Create a quaternion from the shuttle's rotation
+      const rotationQuaternion = new THREE.Quaternion().setFromEuler(shuttleRotation);
+
+      // Apply the rotation to the forward vector
+      forward.applyQuaternion(rotationQuaternion);
+
+      // Now transform this vector to be relative to the globe
+      const baseMatrix = new THREE.Matrix4().makeBasis(rightVector, adjustedUpVector, directionFromCenter);
+      forward.applyMatrix4(baseMatrix);
+
+      const shuttleDirection = forward.normalize();
 
       // Create an offset that's behind and above the shuttle
       const up = new THREE.Vector3(0, 1, 0);
@@ -100,9 +120,9 @@ function GlobeScene({
         .copy(shuttlePosition)
         .add(offset);
 
-      // Set camera position and look at the Earth
+      // Set camera position and look in the direction the shuttle is facing
       camera.position.copy(cameraPosition);
-      camera.lookAt(shuttleLookAt);
+      camera.lookAt(new THREE.Vector3().addVectors(shuttlePosition, shuttleDirection));
       camera.updateProjectionMatrix();
 
       // Disable controls when in shuttle view
@@ -115,7 +135,7 @@ function GlobeScene({
         controlsRef.current.enabled = true;
       }
     }
-  }, [cameraView, shuttlePosition, shuttleLookAt, camera]);
+  }, [cameraView, shuttlePosition, shuttleRotation, camera]);
 
   // Orbit path visualization is now imported from a separate component
 
@@ -160,7 +180,7 @@ function GlobeScene({
       <Shuttle
         path={shuttlePath}
         position={shuttlePosition}
-        lookAt={shuttleLookAt}
+        rotation={shuttleRotation}
       />
     </>
   );

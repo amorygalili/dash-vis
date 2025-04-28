@@ -15,7 +15,7 @@ interface Props {
 const GlobeWithOrbitingR3FShuttleExample: React.FC<Props> = ({ width, height }) => {
   // State for shuttle position and path
   const [shuttlePosition, setShuttlePosition] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 130));
-  const [shuttleLookAt, setShuttleLookAt] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 0));
+  const [shuttleRotation, setShuttleRotation] = useState<THREE.Euler>(new THREE.Euler(0, 0, 0));
   const [orbitPath, setOrbitPath] = useState<OrbitPoint[]>([]);
 
   // Animation parameters
@@ -58,17 +58,33 @@ const GlobeWithOrbitingR3FShuttleExample: React.FC<Props> = ({ width, height }) 
     const intervalId = setInterval(() => {
       // Update the angle (faster movement)
       angle.current = (angle.current + 0.005) % (Math.PI * 2);
+      const verticalAngle = angle.current * verticalOscillations;
 
       // Calculate position using spherical coordinates with custom orbit
       const x = orbitRadius * Math.cos(angle.current);
       const z = orbitRadius * Math.sin(angle.current);
-      const y = orbitHeight * Math.sin(angle.current * verticalOscillations); // Controlled vertical oscillation
+      const y = orbitHeight * Math.sin(verticalAngle); // Controlled vertical oscillation
 
       // Update the position
       setShuttlePosition(new THREE.Vector3(x, y, z));
 
-      // Always look at the center of the globe
-      setShuttleLookAt(new THREE.Vector3(0, 0, 0));
+      // Create Euler rotation angles (roll, pitch, yaw) relative to the globe
+      // When all angles are 0, the shuttle points directly away from the globe center
+
+      // Roll (X) - tilt left/right around the forward axis
+      // Positive values tilt right wing down, negative values tilt left wing down
+      const roll = Math.sin(verticalAngle) * 0.5;
+
+      // Pitch (Y) - tilt up/down around the side axis
+      // Positive values tilt nose up, negative values tilt nose down
+      const pitch = Math.sin(angle.current * 2) * 0.3;
+
+      // Yaw (Z) - turn left/right around the up axis
+      // Positive values turn right, negative values turn left
+      const yaw = Math.cos(angle.current) * 0.2;
+
+      // Set the rotation directly using Euler angles
+      setShuttleRotation(new THREE.Euler(0,Math.PI / 2,0));
     }, 16); // ~60fps
 
     return () => clearInterval(intervalId);
@@ -76,15 +92,18 @@ const GlobeWithOrbitingR3FShuttleExample: React.FC<Props> = ({ width, height }) 
 
   return (
     <div style={{ position: 'relative' }}>
-    
+
       <GlobeWithOrbitingR3FShuttle
         width={width}
         height={height}
         shuttlePath="/Shuttle Model.glb"
         shuttlePosition={shuttlePosition}
-        shuttleLookAt={shuttleLookAt}
+        shuttleRotation={shuttleRotation}
         orbitPathPoints={orbitPath}
       />
+      <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: 5 }}>
+        Using Euler Angles (roll, pitch, yaw) for rotation relative to the globe
+      </div>
     </div>
   );
 };
