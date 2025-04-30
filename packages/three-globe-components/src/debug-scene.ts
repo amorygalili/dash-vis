@@ -35,31 +35,43 @@ function inspectScene(scene: Scene): void {
     traverse(scene as GlobeObject);
     console.groupEnd();
 }
-
-// Label specific inspector
 function inspectLabels(scene: Scene): void {
     console.group('Labels Inspection');
     
     scene.traverse((obj: Object3D) => {
         const globeObj = obj as GlobeObject;
         if (globeObj.__globeObjType === 'label') {
-            console.log('Found label:', {
+            console.group('Label Object:', {
                 type: globeObj.type,
-                children: globeObj.children.length,
                 position: globeObj.position.toArray(),
-                material: globeObj.material?.type,
                 visible: globeObj.visible
             });
             
+            // Inspect direct children
             globeObj.children.forEach((child: Object3D, i: number) => {
                 const childObj = child as GlobeObject;
-                console.log(`Child ${i}:`, {
+                console.group(`Child ${i}:`, {
                     type: childObj.type,
                     geometry: childObj.geometry?.type || 'none',
                     material: childObj.material?.type || 'none',
                     visible: childObj.visible
                 });
+
+                // Inspect grandchildren (for the text mesh's bounding box)
+                childObj.children.forEach((grandChild: Object3D, j: number) => {
+                    const grandChildObj = grandChild as GlobeObject;
+                    console.log(`Grandchild ${j}:`, {
+                        type: grandChildObj.type,
+                        geometry: grandChildObj.geometry?.type || 'none',
+                        material: grandChildObj.material?.type || 'none',
+                        visible: grandChildObj.visible
+                    });
+                });
+
+                console.groupEnd();
             });
+            
+            console.groupEnd();
         }
     });
     
