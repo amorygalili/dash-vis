@@ -77,6 +77,7 @@ function GlobeScene({
       shuttlePosition &&
       camera
     ) {
+      console.log("CAMERA:", camera);
       // Calculate the direction from the globe center to the shuttle
       const directionFromCenter = new THREE.Vector3().copy(shuttlePosition).normalize();
 
