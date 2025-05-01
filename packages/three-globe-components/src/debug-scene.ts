@@ -159,7 +159,7 @@ import {
         const newGeometry = new TextGeometry(newText, {
           font: params.font,
           size: params.size || 0.5,
-          height: 0, // Force height to 0 to make it flat
+          depth: 0, // Force height to 0 to make it flat
           curveSegments: params.curveSegments || 3,
           bevelEnabled: false, // Disable bevel to keep it flat
           bevelThickness: 0,
