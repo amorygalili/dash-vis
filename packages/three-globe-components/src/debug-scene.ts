@@ -123,6 +123,13 @@ import {
         return;
       }
       
+      // Skip if this label has already been updated with this property
+      if (globeObj.userData.__updatedTextProperties && 
+          globeObj.userData.__updatedTextProperties[textProperty] === newText) {
+        console.log(`Label already updated with '${textProperty}' = "${newText}"`);
+        return;
+      }
+      
       console.log(`Updating label with new text: "${newText}"`);
       
       globeObj.children.forEach((child: Object3D) => {
@@ -151,7 +158,7 @@ import {
         const newGeometry = new TextGeometry(newText, {
           font: params.font,
           size: params.size || 0.5,
-        //   height: params.height || 0,
+          height: params.height || 0,
           curveSegments: params.curveSegments || 3,
           bevelEnabled: params.bevelEnabled || false,
           bevelThickness: params.bevelThickness || 0,
@@ -200,6 +207,12 @@ import {
           }
         }
         
+        // Mark this label as updated with this property
+        if (!globeObj.userData.__updatedTextProperties) {
+          globeObj.userData.__updatedTextProperties = {};
+        }
+        globeObj.userData.__updatedTextProperties[textProperty] = newText;
+        
         updatedCount++;
       });
     });
@@ -210,3 +223,4 @@ import {
   
   export { inspectLabels, updateLabelText };
   
+
