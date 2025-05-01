@@ -6,4 +6,4 @@ export { default as TiledGlobe } from "./TiledGlobe";
 export { GlbModelLoader } from "./GlbModelLoader";
 export { default as GlobeWithOrbitingShuttle } from "./GlobeWithOrbitingShuttle";
 export { default as GlobeWithOrbitingR3FShuttle } from "./r3fshuttle/GlobeWithOrbitingR3FShuttle";
-export type { OrbitPoint } from "./types";
+export type { OrbitPoint, Object3D } from "./types";

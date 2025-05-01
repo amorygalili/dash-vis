@@ -1,36 +1,23 @@
 import { useRef, useState, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
-import { OrbitPoint } from '../types';
+import { OrbitPoint, Object3D } from '../types';
 import GlobeScene from './GlobeScene';
 import CameraViewSelector, { CameraView } from './CameraViewSelector';
 
 interface Props {
   width: number;
   height: number;
-  // Props for shuttle position and path
-  shuttlePath?: string; // Path to the shuttle model
-  shuttlePosition: THREE.Vector3; // Position for the shuttle
-  shuttleRotation: THREE.Euler; // Rotation using Euler angles (roll, pitch, yaw)
+  objects3D: Object3D[]; // Array of 3D objects to display
   orbitPathPoints: OrbitPoint[]; // Orbit path points
 }
-
-// Camera view type is now imported from CameraViewSelector
-
 
 // Main component
 function GlobeWithOrbitingR3FShuttle({
   width,
   height,
-  shuttlePath = "/Shuttle Model.glb",
-  shuttlePosition,
-  shuttleRotation,
-  orbitPathPoints
+  objects3D = [],
+  orbitPathPoints = []
 }: Props) {
-  // Preload the model
-  useGLTF.preload('/Shuttle Model.glb');
-
   // State for camera view selection
   const [cameraView, setCameraView] = useState<CameraView>('orbit');
 
@@ -66,9 +53,7 @@ function GlobeWithOrbitingR3FShuttle({
         <GlobeScene
           cameraView={cameraView}
           controlsRef={controlsRef}
-          shuttlePath={shuttlePath}
-          shuttlePosition={shuttlePosition}
-          shuttleRotation={shuttleRotation}
+          objects3D={objects3D}
           orbitPathPoints={orbitPathPoints}
         />
         <color attach="background" args={['black']} />

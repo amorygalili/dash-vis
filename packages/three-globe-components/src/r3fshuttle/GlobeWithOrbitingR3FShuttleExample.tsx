@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import GlobeWithOrbitingR3FShuttle from './GlobeWithOrbitingR3FShuttle';
+import GlobeWithOrbitingR3FShuttle, { Object3D } from './GlobeWithOrbitingR3FShuttle';
 import { OrbitPoint } from '../types';
 
 interface Props {
@@ -10,12 +9,11 @@ interface Props {
 
 /**
  * Example component that demonstrates how to use the refactored GlobeWithOrbitingR3FShuttle
- * with custom shuttle position and path.
+ * with multiple 3D objects.
  */
 const GlobeWithOrbitingR3FShuttleExample: React.FC<Props> = ({ width, height }) => {
-  // State for shuttle position and path
-  const [shuttlePosition, setShuttlePosition] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 130));
-  const [shuttleRotation, setShuttleRotation] = useState<THREE.Euler>(new THREE.Euler(0, 0, 0));
+  // State for 3D objects and orbit path
+  const [objects3D, setObjects3D] = useState<Object3D[]>([]);
   const [orbitPath, setOrbitPath] = useState<OrbitPoint[]>([]);
 
   // Animation parameters
@@ -53,56 +51,84 @@ const GlobeWithOrbitingR3FShuttleExample: React.FC<Props> = ({ width, height }) 
     setOrbitPath(orbitPoints);
   }, [orbitRadius, orbitHeight, globeRadius, verticalOscillations]);
 
-  // Animate the shuttle along the orbit path
+  // Animate the objects along the orbit path
   useEffect(() => {
     const intervalId = setInterval(() => {
       // Update the angle (faster movement)
       angle.current = (angle.current + 0.005) % (Math.PI * 2);
+
+      // Create multiple objects at different positions along the orbit
+      const newObjects: Object3D[] = [];
+
+      // Main shuttle
       const verticalAngle = angle.current * verticalOscillations;
 
-      // Calculate position using spherical coordinates with custom orbit
+      // Calculate position using spherical coordinates
       const x = orbitRadius * Math.cos(angle.current);
       const z = orbitRadius * Math.sin(angle.current);
-      const y = orbitHeight * Math.sin(verticalAngle); // Controlled vertical oscillation
+      const y = orbitHeight * Math.sin(verticalAngle);
 
-      // Update the position
-      setShuttlePosition(new THREE.Vector3(x, y, z));
+      // Convert cartesian to spherical coordinates
+      const r = Math.sqrt(x*x + y*y + z*z);
+      const lat = Math.asin(y / r) * 180 / Math.PI;
+      const lng = Math.atan2(z, x) * 180 / Math.PI;
+      const alt = (r - globeRadius) / globeRadius;
 
-      // Create Euler rotation angles (roll, pitch, yaw) relative to the globe
-      // When all angles are 0, the shuttle points directly away from the globe center
+      // Create rotation angles
+      const roll = Math.sin(verticalAngle) * 30; // Convert to degrees
+      const pitch = Math.sin(angle.current * 2) * 15;
+      const yaw = Math.cos(angle.current) * 10;
 
-      // Roll (X) - tilt left/right around the forward axis
-      // Positive values tilt right wing down, negative values tilt left wing down
-      const roll = Math.sin(verticalAngle) * 0.5;
+      // Add main shuttle
+      newObjects.push({
+        id: 'shuttle1',
+        path: "/Shuttle Model.glb",
+        lat,
+        lng,
+        altitude: alt,
+        rotation: [roll, pitch, yaw]
+      });
 
-      // Pitch (Y) - tilt up/down around the side axis
-      // Positive values tilt nose up, negative values tilt nose down
-      const pitch = Math.sin(angle.current * 2) * 0.3;
+      // Add a second shuttle at the opposite side of the orbit
+      const oppositeAngle = (angle.current + Math.PI) % (Math.PI * 2);
+      const oppositeVerticalAngle = oppositeAngle * verticalOscillations;
 
-      // Yaw (Z) - turn left/right around the up axis
-      // Positive values turn right, negative values turn left
-      const yaw = Math.cos(angle.current) * 0.2;
+      const x2 = orbitRadius * Math.cos(oppositeAngle);
+      const z2 = orbitRadius * Math.sin(oppositeAngle);
+      const y2 = orbitHeight * Math.sin(oppositeVerticalAngle);
 
-      // Set the rotation directly using Euler angles
-      setShuttleRotation(new THREE.Euler(0,Math.PI / 2,0));
+      const r2 = Math.sqrt(x2*x2 + y2*y2 + z2*z2);
+      const lat2 = Math.asin(y2 / r2) * 180 / Math.PI;
+      const lng2 = Math.atan2(z2, x2) * 180 / Math.PI;
+      const alt2 = (r2 - globeRadius) / globeRadius;
+
+      // Add second shuttle with different rotation
+      newObjects.push({
+        id: 'shuttle2',
+        path: "/Shuttle Model.glb",
+        lat: lat2,
+        lng: lng2,
+        altitude: alt2,
+        rotation: [-roll, -pitch, -yaw]
+      });
+
+      // Update the objects state
+      setObjects3D(newObjects);
     }, 16); // ~60fps
 
     return () => clearInterval(intervalId);
-  }, [orbitRadius, orbitHeight, verticalOscillations]);
+  }, [orbitRadius, orbitHeight, globeRadius, verticalOscillations]);
 
   return (
     <div style={{ position: 'relative' }}>
-
       <GlobeWithOrbitingR3FShuttle
         width={width}
         height={height}
-        shuttlePath="/Shuttle Model.glb"
-        shuttlePosition={shuttlePosition}
-        shuttleRotation={shuttleRotation}
+        objects3D={objects3D}
         orbitPathPoints={orbitPath}
       />
       <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: 5 }}>
-        Using Euler Angles (roll, pitch, yaw) for rotation relative to the globe
+        Multiple 3D objects with rotation in [x, y, z] degrees
       </div>
     </div>
   );
