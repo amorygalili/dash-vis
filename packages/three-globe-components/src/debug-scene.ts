@@ -127,7 +127,7 @@ import {
       if (globeObj.userData.__updatedTextProperties && 
           globeObj.userData.__updatedTextProperties[textProperty] === newText) {
         console.log(`Label already updated with '${textProperty}' = "${newText}"`);
-        return;
+        // return;
       }
       
       console.log(`Updating label with new text: "${newText}"`);
@@ -155,16 +155,17 @@ import {
         }
         
         // Create new geometry with the same parameters but new text
+        // Important: Set height to 0 to make it flat, and disable bevel
         const newGeometry = new TextGeometry(newText, {
           font: params.font,
           size: params.size || 0.5,
-          height: params.height || 0,
+          height: 0, // Force height to 0 to make it flat
           curveSegments: params.curveSegments || 3,
-          bevelEnabled: params.bevelEnabled || false,
-          bevelThickness: params.bevelThickness || 0,
-          bevelSize: params.bevelSize || 0,
-          bevelOffset: params.bevelOffset || 0,
-          bevelSegments: params.bevelSegments || 0,
+          bevelEnabled: false, // Disable bevel to keep it flat
+          bevelThickness: 0,
+          bevelSize: 0,
+          bevelOffset: 0,
+          bevelSegments: 0,
         });
         
         // Center the text geometry if it was centered before
@@ -223,4 +224,5 @@ import {
   
   export { inspectLabels, updateLabelText };
   
+
 
